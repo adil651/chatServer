@@ -9,8 +9,16 @@ import (
 
 var clients = make(map[*websocket.Conn]bool) // connected clients
 
+var broadcast = make(chan Message) // broadcast channel
+
 // Configure the upgrader
 var upgrader = websocket.Upgrader{}
+
+// Message object
+type Message struct {
+	Username string `json:"username"`
+	Message  string `json:"message"`
+}
 
 func main() {
 
@@ -19,7 +27,7 @@ func main() {
 	http.Handle("/", fs)
 
 	// Start the HTTP server
-	log.Println("http server started on :8000")
+	log.Println("HTTP server started on :8000")
 	err := http.ListenAndServe(":8000", nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
@@ -27,6 +35,9 @@ func main() {
 
 	// Configure websocket route
 	http.HandleFunc("/ws", handleConnections)
+
+	// Start listening for incoming chat messages
+	go handleMessages()
 
 }
 
@@ -43,4 +54,17 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 
 	// Register our new client
 	clients[ws] = true
+
+	for {
+		var msg Message
+		// Read in a new message as JSON and map it to a Message object
+		err := ws.ReadJSON(&msg)
+		if err != nil {
+			log.Printf("error: %v", err)
+			delete(clients, ws)
+			break
+		}
+		// Send the newly received message to the broadcast channel
+		broadcast <- msg
+	}
 }
