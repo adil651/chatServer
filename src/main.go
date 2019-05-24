@@ -40,4 +40,7 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 
 	// Make sure we close the connection when the function returns
 	defer ws.Close()
+
+	// Register our new client
+	clients[ws] = true
 }
