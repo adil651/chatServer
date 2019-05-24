@@ -20,27 +20,6 @@ type Message struct {
 	Message  string `json:"message"`
 }
 
-func main() {
-
-	// Create a simple file server
-	fs := http.FileServer(http.Dir("../public"))
-	http.Handle("/", fs)
-
-	// Start the HTTP server
-	log.Println("HTTP server started on :8000")
-	err := http.ListenAndServe(":8000", nil)
-	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
-	}
-
-	// Configure websocket route
-	http.HandleFunc("/ws", handleConnections)
-
-	// Start listening for incoming chat messages
-	go handleMessages()
-
-}
-
 func handleConnections(w http.ResponseWriter, r *http.Request) {
 
 	// Upgrade initial GET request to a websocket
@@ -67,4 +46,42 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 		// Send the newly received message to the broadcast channel
 		broadcast <- msg
 	}
+}
+
+func handleMessages() {
+	for {
+		// Grab the next message from the broadcast channel
+		msg := <-broadcast
+
+		// Send it out to every client that is currently connected
+		for client := range clients {
+			err := client.WriteJSON(msg)
+			if err != nil {
+				log.Printf("error: %v", err)
+				client.Close()
+				delete(clients, client)
+			}
+		}
+	}
+}
+
+func main() {
+
+	// Create a simple file server
+	fs := http.FileServer(http.Dir("../public"))
+	http.Handle("/", fs)
+
+	// Start the HTTP server
+	log.Println("HTTP server started on :8000")
+	err := http.ListenAndServe(":8000", nil)
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}
+
+	// Configure websocket route
+	http.HandleFunc("/ws", handleConnections)
+
+	// Start listening for incoming chat messages
+	go handleMessages()
+
 }
