@@ -38,9 +38,6 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	// Register our new client
 	clients[ws] = true
 
-	// To send Welcome Messages
-	SendWelcomeMessages()
-
 	for {
 		var msg Message
 		// Read in a new message as JSON and map it to a Message object
@@ -72,9 +69,9 @@ func handleMessages() {
 	}
 }
 
-func SendWelcomeMessages() {
-	var msgString string = "Hello, This is the server talking. I greet all the new comers because I can push messages too, over the connection using websockets"
-	var msgString1 string = "Please enter your username below and click join, So we can get going"
+func sendWelcomeMessages() {
+	var msgString = "Hello, This is the server talking. I greet all the new comers because I can push messages too, over the connection using websockets"
+	var msgString1 = "Please enter your username below and click join, So we can get going"
 	var msg = Message{"Server", msgString}
 	var msg1 = Message{"Server", msgString1}
 	broadcast <- msg
