@@ -1,1 +1,1 @@
-web:chatServer
+web: chatServer
