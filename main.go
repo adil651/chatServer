@@ -14,6 +14,8 @@ var broadcast = make(chan Message) // broadcast channel
 
 // Configure the upgrader
 var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
@@ -103,7 +105,7 @@ func main() {
 
 	var port = getPort()
 	log.Println("HTTP server started on : " + port)
-	err := http.ListenAndServe(port, nil)
+	err := http.ListenAndServeTLS(port, "cert.pem", "cert.key", nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
