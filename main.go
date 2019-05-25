@@ -36,6 +36,8 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	defer ws.Close()
 
 	// Register our new client
+	sendWelcomeMessages()
+
 	clients[ws] = true
 
 	for {
@@ -71,17 +73,14 @@ func handleMessages() {
 
 func sendWelcomeMessages() {
 	var msgString = "Hello, This is the server talking. I greet all the new comers because I can push messages too, over the connection using websockets"
-	var msgString1 = "Please enter your username below and click join, So we can get going"
 	var msg = Message{"Server", msgString}
-	var msg1 = Message{"Server", msgString1}
 	broadcast <- msg
-	broadcast <- msg1
 }
 
 func main() {
 
 	// Create a simple file server
-	fs := http.FileServer(http.Dir("../public"))
+	fs := http.FileServer(http.Dir("public"))
 	http.Handle("/", fs)
 
 	// Configure websocket route
