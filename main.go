@@ -102,7 +102,7 @@ func main() {
 
 	var port = getPort()
 	log.Println("HTTP server started on : " + port)
-	err := http.ListenAndServeTLS(port, "cert.pem", "cert.key", nil)
+	err := http.ListenAndServe(port, nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
