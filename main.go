@@ -14,8 +14,6 @@ var broadcast = make(chan Message) // broadcast channel
 
 // Configure the upgrader
 var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
@@ -95,8 +93,7 @@ func main() {
 	http.Handle("/", fs)
 
 	// Configure websocket route
-	http.HandleFunc("/wss", handleConnections)
-	//http.HandleFunc("wss:/", handleConnections)
+	http.HandleFunc("/ws", handleConnections)
 
 	// Start listening for incoming chat messages
 	go handleMessages()
@@ -105,7 +102,7 @@ func main() {
 
 	var port = getPort()
 	log.Println("HTTP server started on : " + port)
-	err := http.ListenAndServeTLS(port, "cert.pem", "cert.key", nil)
+	err := http.ListenAndServe(port, "cert.pem", "cert.key", nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
