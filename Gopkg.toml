@@ -32,3 +32,8 @@
 [prune]
   go-tests = true
   unused-packages = true
+
+[metadata.heroku]
+  root-package = "chatServer"
+  go-version = "1.12.5"
+  install = [ "./..." ]
